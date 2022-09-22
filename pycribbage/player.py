@@ -27,6 +27,8 @@ class Player():
         a ThePlayMethod object that defines the method used to choose cards in the play
     hand : Hand 
         a Hand object that represents the player's hand 
+    played_cards : Hand 
+        a Hand object that represents the cards the player has played in 'the play' 
         
     Methods
     -------

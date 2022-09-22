@@ -1,5 +1,5 @@
 # conftest.py
-from pycribbage import player,discard_methods,the_play_methods,the_play,cribbage_round,cribbage_game
+from pycribbage import player,discard_methods,the_play_methods,the_play,cribbage_game
 import pytest
 import os 
 from _pytest.assertion import truncate
@@ -28,32 +28,6 @@ def init_players():
     player_1.set_dealer(True)
     return player_1,player_2
 
-@pytest.fixture()
-def init_round(init_players):
-    """initialise a round of cribbage
-    this uses the default Discard and ThePLay Methods
-    Returns
-    ----------
-    round_1, CribbageRound
-        CribbageRound object 
-    """
-    player_1,player_2 = init_players
-    round_1 = cribbage_round.CribbageRound(player_1,player_2)
-    return round_1 
-
-
-@pytest.fixture()
-def init_play(init_players):
-    """initialise the play 
-    this uses the default Discard and ThePLay Methods
-    Returns
-    ----------
-    play, ThePlay
-        ThePLay object 
-    """
-    player_1,player_2 = init_players
-    play =the_play.ThePlay(player_1,player_2)
-    return play
 
 @pytest.fixture()
 def init_game(tmp_path):
@@ -85,3 +59,23 @@ def init_game(tmp_path):
     os.chdir(tmp_path)
     game = cribbage_game.CribbageGame(players,batch_mode=True)
     return game
+@pytest.fixture()
+def init_game_for_round(init_game):
+    """    
+    Parameters
+    ------------
+    init_game, CribbageGame 
+        CribbageGame  object
+    
+    Returns
+    ------------
+    game, CribbageGame 
+        CribbageGame  object
+    """
+    game=init_game
+    game.player_1.set_dealer(True)
+    game.player_2.set_dealer(False)
+    game.set_pone_dealer()
+
+    return game
+
