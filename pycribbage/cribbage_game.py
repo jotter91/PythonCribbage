@@ -43,11 +43,31 @@ class CribbageGame():
     table_sum : int
         sum of face values of the cards on the table 
     active_player_str : str
-        string to say which player active 
+        string to say which player active    
+    dealer_go : bool
+        bool to represent if the dealer is able to play a card_to_play
+        True means that the player has said 'go' and cannot go
+    pone_go : bool
+        bool to represent if pone is able to play a card_to_play
+        True means that the player has said 'go' and cannot go
+    go_added : bool
+        bool to keep track is the point for a go has been added to the player's score  
+    play_end : bool
+        bool to represent if the play has finished 
+    pone_hand_init : Hand 
+        a Hand object that represents the cards dealt to pone player . 
+        This is required as cards will be moved to the table and they need to be returned
+        before the show 
+    dealer_hand_init : Hand 
+        a Hand object that represents the cards dealt to the dealer. 
+        This is required as cards will be moved to the table and they need to be returned
+        before the show  
     Methods
     -------
     play_game()
-        Plays out the cribbage game
+        Plays out the cribbage game - calls all other methods
+    play_round()
+        Plays out a round (deal,discard,the play, the show)        
     set_pone_dealer()
         allocate players as pone and dealer
     create_log_file()
@@ -56,6 +76,28 @@ class CribbageGame():
         log to console (if not batch) and file
     close_log_file()
         close the log file
+    deal_hands()
+        Deal out hands and perform cut      
+    discard()
+        collect player's discard and move into crib
+    update_crib()
+        update the crib    
+    update_cut_card()
+        update the the cut card      
+    the_show()
+        A function used to represent the show phase of cribbage
+    reset_table() 
+        reset table to a pre-round state
+    reset_crib_and_cut_card()
+        set crib and cut card to empty Hand objs"
+    the_play()
+        A function used to represent 'the play' phase of cribbage 
+    go()
+       simulate the fact that active player can't play so says go
+    switch_player()
+        switch active player after a cards has been played or player says go
+    return_cards()    
+        move cards from the table back to player's hands
     """
     def __init__(self,players,set_game={},cut_player=None,batch_mode=False):
         """
@@ -124,6 +166,92 @@ class CribbageGame():
                                      
             setattr(self,'player_%i'%(i+1),player_obj)
             
+    def play_game(self):
+        """Plays out the cribbage game"""
+
+        self.logger('Game about to begin !')
+        self.logger('Cut card to choose who is first dealer')
+        
+        #First choose which player should be the first dealer
+        if self.cut_player ==None:
+            cut_player,cut_string_ = cut_for_crib()
+            cut_string = cut_string_.replace('P1',self.player_1.name).replace('P2',self.player_2.name)
+        else:
+            cut_player = self.cut_player
+            cut_string ='%s will be dealer'%self.cut_player
+        self.logger(cut_string)    
+        if cut_player =='player_1':
+            self.player_1.set_dealer(True)
+            self.player_2.set_dealer(False)
+            self.logger('%s is dealer'%self.player_1.name)
+
+        elif cut_player =='player_2':
+            self.player_1.set_dealer(False)
+            self.player_2.set_dealer(True)
+            self.logger('%s is dealer'%self.player_2.name)
+
+        self.set_pone_dealer()
+        
+        self.for_set_game ={}
+        i_round= 0
+        
+        #keep playing rounds until someone wins
+        while True:
+        
+            try:
+                self.play_round(i_round)
+            except GameOver:
+                
+                #self.logger(play.__str__())
+                #self.logger(show.__str__().replace('Pone',pone.name).replace('Dealer',dealer.name).replace('Crib',"%s's Crib"%dealer.name))
+                self.logger('end of game scores')
+                self.logger('%s %i %s %i'%(self.player_1.name,
+                                     self.player_1.score,
+                                     self.player_2.name,
+                                     self.player_2.score))
+                if self.player_1.score >=121:
+                    self.winner = self.player_1.name
+                else:
+                    self.winner = self.player_2.name
+                    
+                self.close_log_file()
+                break 
+            i_round=i_round+1        
+    
+    def play_round(self,i_round):
+        """ plays out a round of cribbage"""
+        self.logger('start of round %i'%i_round)
+                
+        if len(self.set_game.keys()) ==0:
+            self.for_set_game[i_round] = self.deal_hands()
+        else:
+            self.for_set_game[i_round] = self.deal_hands(self.set_game[i_round])
+        self.discard()
+        self.the_play()
+        
+        pone_score,dealer_hand_score,crib_score,dealer_score,out_string = self.the_show()
+       
+        self.pone.update_score(pone_score)
+        self.dealer.update_score(dealer_score)
+        
+       
+        self.logger(out_string.replace('Pone',self.pone.name).replace('Dealer',self.dealer.name)\
+                    .replace('Crib',"%s's Crib"%self.dealer.name))
+        
+        self.logger('='*30)
+        self.logger('End of round %i'%i_round)
+        self.logger('%s score : %i , %s score :%i\n'%(self.player_1.name,
+                                                self.player_1.score,
+                                                self.player_2.name,
+                                                self.player_2.score))
+        self.logger('='*30)
+
+        #clean up at the end of the round 
+        switch_dealer(self.player_1,self.player_2)
+        self.set_pone_dealer()
+        self.reset_crib_and_cut_card() 
+        self.reset_table()
+        
     def set_pone_dealer(self):
         """allocate players as pone and dealer"""
         
@@ -247,9 +375,11 @@ class CribbageGame():
      
         Returns
         --------
-        out_string,str
-            output string ... need I say more?
-   
+        pone_score, int
+        dealer_hand_score, int
+        crib_score, int 
+        dealer_score, int
+        out_string, str
         """
         #deepcopy to avoid altering the original
         pone_hand = deepcopy(self.pone.hand)
@@ -292,6 +422,8 @@ class CribbageGame():
         return pone_score,dealer_hand_score,crib_score,dealer_score,out_string
     
     def reset_table(self): 
+        """ reset table to a pre-round state"""
+    
         self.dealer_go=False
         self.pone_go=False
 
@@ -304,55 +436,13 @@ class CribbageGame():
         self.table_sum=0
     
     def reset_crib_and_cut_card(self):
+        """ set crib and cut card to empty Hand objs"""
         self.crib = deck_tools.Hand()
         self.cut_card = deck_tools.Hand()
 
     def the_play(self,):
         """
-        A function used to represent 'the play' phase of cribbage
-
-        ...
-
-        Attributes
-        ----------
-        active_player : str
-            string to denote who's turn it is 
-        on_table : Hand 
-            a Hand object that represents the cards on the table to be scored
-        pone : Player
-            a Player object to represent the non-dealer (pone)
-        dealer : dict
-            a Player object to represent the dealer     
-        dealer_go : bool
-            bool to represent if the dealer is able to play a card_to_play
-            True means that the play has said 'go' and cannot go
-        pone_go : bool
-            bool to represent if pone is able to play a card_to_play
-            True means that the play has said 'go' and cannot go
-        go_added : bool
-            bool to keep track is the point for a go has been added to the player's score  
-        play_end : bool
-            bool to represent if the play has finished 
-        pone_hand_init : Hand 
-            a Hand object that represents the cards dealt to pone player . 
-            This is required as cards will be moved to the table and they need to be returned
-            before the show 
-        dealer_hand_init : Hand 
-            a Hand object that represents the cards dealt to the dealer. 
-            This is required as cards will be moved to the table and they need to be returned
-            before the show  
-        pone_score_init : int
-            pone's score at start of the play
-        dealer_score_init : int
-            dealer's score at start of the play  
-        pone_score_init : int
-            pone's accrued score  in the play 
-        dealer_score_init : int
-            dealer's accrued score in the play 
-        table_sum : int
-            sum of face values of the cards on the table 
-        out_string : str
-           string to store updates of the play 
+        A function used to represent 'the play' phase of cribbage 
                 
         """    
         
@@ -452,90 +542,5 @@ class CribbageGame():
         self.pone.update_hand(self.pone_hand_init)
         self.dealer.update_hand(self.dealer_hand_init)
     
-    #def __str__(self):
-    #    """ print the summary of the round"""
-    #    return self.out_string
     
-    def play_round(self,i_round):
-        self.logger('start of round %i'%i_round)
-                
-        if len(self.set_game.keys()) ==0:
-            self.for_set_game[i_round] = self.deal_hands()
-        else:
-            self.for_set_game[i_round] = self.deal_hands(self.set_game[i_round])
-        self.discard()
-        self.the_play()
-        
-        pone_score,dealer_hand_score,crib_score,dealer_score,out_string = self.the_show()
-       
-        self.pone.update_score(pone_score)
-        self.dealer.update_score(dealer_score)
-        
-       
-        self.logger(out_string.replace('Pone',self.pone.name).replace('Dealer',self.dealer.name)\
-                    .replace('Crib',"%s's Crib"%self.dealer.name))
-        
-        self.logger('='*30)
-        self.logger('End of round %i'%i_round)
-        self.logger('%s score : %i , %s score :%i\n'%(self.player_1.name,
-                                                self.player_1.score,
-                                                self.player_2.name,
-                                                self.player_2.score))
-        self.logger('='*30)
 
-        #clean up at the end of the round 
-        switch_dealer(self.player_1,self.player_2)
-        self.set_pone_dealer()
-        self.reset_crib_and_cut_card() 
-        self.reset_table()
-    def play_game(self):
-        """Plays out the cribbage game"""
-
-        self.logger('Game about to begin !')
-        self.logger('Cut card to choose who is first dealer')
-        
-        #First choose which player should be the first dealer
-        if self.cut_player ==None:
-            cut_player,cut_string_ = cut_for_crib()
-            cut_string = cut_string_.replace('P1',self.player_1.name).replace('P2',self.player_2.name)
-        else:
-            cut_player = self.cut_player
-            cut_string ='%s will be dealer'%self.cut_player
-        self.logger(cut_string)    
-        if cut_player =='player_1':
-            self.player_1.set_dealer(True)
-            self.player_2.set_dealer(False)
-            self.logger('%s is dealer'%self.player_1.name)
-
-        elif cut_player =='player_2':
-            self.player_1.set_dealer(False)
-            self.player_2.set_dealer(True)
-            self.logger('%s is dealer'%self.player_2.name)
-
-        self.set_pone_dealer()
-        
-        self.for_set_game ={}
-        i_round= 0
-        
-        #keep playing rounds until someone wins
-        while True:
-        
-            try:
-                self.play_round(i_round)
-            except GameOver:
-                
-                #self.logger(play.__str__())
-                #self.logger(show.__str__().replace('Pone',pone.name).replace('Dealer',dealer.name).replace('Crib',"%s's Crib"%dealer.name))
-                self.logger('end of game scores')
-                self.logger('%s %i %s %i'%(self.player_1.name,
-                                     self.player_1.score,
-                                     self.player_2.name,
-                                     self.player_2.score))
-                if self.player_1.score >=121:
-                    self.winner = self.player_1.name
-                else:
-                    self.winner = self.player_2.name
-                    
-                self.close_log_file()
-                break 
-            i_round=i_round+1
