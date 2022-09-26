@@ -1,9 +1,9 @@
 
-##PyCribbage
+## PyCribbage
 
 PyCribbage is a Python application for playing a card game called Cribbage. It was created to demonstrate my ability to apply OOP concepts, follow a TDD process and apply SOLID coding principles.
 
-An overview of the rules of the game and the terminology used can be found [here] (https://www.theukrules.co.uk/rules/children/games/cards/cribbage.html)
+An overview of the rules of the game and the terminology used can be found here : https://www.theukrules.co.uk/rules/children/games/cards/cribbage.html
 
 ## Installation
 
@@ -62,6 +62,12 @@ Enter the method for this player's 'The Play'
 [1] For Random
 [2] For Human
 1
+```
+
+To run the tests : 
+
+```
+python -m pytest tests
 ```
 
 ## Contributing
