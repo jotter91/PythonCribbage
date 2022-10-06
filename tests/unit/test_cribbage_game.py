@@ -1,6 +1,6 @@
 from pycribbage import cribbage_game
 from pycribbage import cribbage_tools
-import os
+import os,json
 
 def test_cribbage_game_finish(init_game):
     """behaviour to test : a winner is declared when a player's score goes above 121
@@ -412,3 +412,22 @@ def test_round_the_show(init_game_for_round):
     assert show.dealer_score == game.dealer.score 
 """
 
+def test_cribbage_game_save_state(init_game_for_round):
+    #behaviour to test : save the current state of the game 
+    #given : a cribbage game object
+    #when : after each player has taken their turn 
+    #then : save the state as a json
+
+    
+    game=init_game_for_round
+    game.deal_hands()
+
+    game.save_state('test.json')
+
+    assert os.path.isfile('test.json')
+
+    with open('test.json') as json_file:
+        data = json.load(json_file)
+    keys =['p1_score']
+    for key in keys:
+        assert key in data.keys()     

@@ -3,7 +3,7 @@ from copy import deepcopy
 from pycribbage.cribbage_tools import GameOver,cut_for_crib,switch_dealer,deal
 from pycribbage import deck_tools
 import os 
-
+import json
 class CribbageGame():
     """
     A class used to represent a game of Cribbage
@@ -245,7 +245,7 @@ class CribbageGame():
                                                 self.player_2.name,
                                                 self.player_2.score))
         self.logger('='*30)
-
+        self.save_state('round_%i.json'%i_round)
         #clean up at the end of the round 
         switch_dealer(self.player_1,self.player_2)
         self.set_pone_dealer()
@@ -542,5 +542,21 @@ class CribbageGame():
         self.pone.update_hand(self.pone_hand_init)
         self.dealer.update_hand(self.dealer_hand_init)
     
-    
+    def save_state(self,fname):
+        """ save the current state as json file"""
+
+        state={'p1_score' : self.player_1.score,
+               'p2_score' : self.player_2.score,
+               'p1_hand'  : self.player_1.hand.__str__(),
+               'p2_hand'  : self.player_2.hand.__str__(),
+               'p1_dealer' : self.player_1.is_dealer,
+               'p2_dealer' : self.player_2.is_dealer,
+               'on_table'  : self.on_table.__str__(),
+               'cut_card'  : self.cut_card.__str__(),
+               'crib'  : self.crib.__str__(),
+               'active_player_str'  : self.active_player_str,
+               'table_sum'  : self.table_sum,
+              }
+        with open(fname,'w+') as f:
+            json.dump(state,f)
 
