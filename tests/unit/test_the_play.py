@@ -1,6 +1,6 @@
 """global behaviours to test : given two hands play out 'ThePlay' part of a cribbage round
 tests are ordered in terms of when they should happen in The play phase. """
-from pycribbage import the_play,deck_tools
+from pycribbage import deck_tools
 import pytest
 
 

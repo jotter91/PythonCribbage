@@ -1,5 +1,5 @@
 """ global behaviour of main to test: read and check inputs required to start a game """
-from pycribbage import main
+from pycribbage import main,discard_methods,the_play_methods
 
 def test_main_the_show_method():
     """ behaviour to test : user can only input certain strings for discard method 
@@ -55,7 +55,8 @@ def test_main_read_players(monkeypatch):
 
     inputs = main.read_players()
     for i,player in zip([0,1],['Player 1','Player 2']):
-        assert inputs[i]['name'] ==player
-        assert inputs[i]['TS_method']=='1'
-        assert inputs[i]['TP_method']=='1'
+        assert inputs[i].name ==player
+        assert isinstance(inputs[i].discard_method,discard_methods.Discard)
+        assert isinstance(inputs[i].the_play_method,the_play_methods.ThePlayMethod)
+
 

@@ -1,9 +1,12 @@
-from pycribbage import player,discard_methods,the_play_methods,scorer
+from pycribbage import player,scorer
 from copy import deepcopy
 from pycribbage.cribbage_tools import GameOver,cut_for_crib,switch_dealer,deal
 from pycribbage import deck_tools
 import os 
 import json
+
+
+
 class CribbageGame():
     """
     A class used to represent a game of Cribbage
@@ -140,30 +143,9 @@ class CribbageGame():
         self.active_player_str ='pone'
         self.table_sum=0
 
+        #TODO: move this out of this class - pass player_obj instead
         for i in [0,1]:
-            
-            #load in discard method
-            if players[i]['TS_method'] =='0':
-                ts_method =  discard_methods.Discard()
-            elif players[i]['TS_method']=='1':
-                ts_method = discard_methods.RandomDiscard()
-            elif players[i]['TS_method']=='2':
-                ts_method = discard_methods.HumanDiscard()
-            
-            
-            #load in the play method
-            if players[i]['TP_method'] =='0':
-                tp_method =  the_play_methods.ThePlayMethod() 
-            elif players[i]['TP_method']=='1':
-                tp_method = the_play_methods.RandomThePlay()
-            elif players[i]['TP_method']=='2':
-                tp_method = the_play_methods.HumanThePlay()
-            
-            
-            player_obj = player.Player(players[i]['name'],
-                                     ts_method,
-                                     tp_method)
-                                     
+            player_obj = players[i]                          
             setattr(self,'player_%i'%(i+1),player_obj)
             
     def play_game(self):
@@ -233,7 +215,7 @@ class CribbageGame():
        
         self.pone.update_score(pone_score)
         self.dealer.update_score(dealer_score)
-        
+        self.save_state()  
        
         self.logger(out_string.replace('Pone',self.pone.name).replace('Dealer',self.dealer.name)\
                     .replace('Crib',"%s's Crib"%self.dealer.name))
@@ -245,12 +227,13 @@ class CribbageGame():
                                                 self.player_2.name,
                                                 self.player_2.score))
         self.logger('='*30)
-        self.save_state('round_%i.json'%i_round)
+        #self.save_state('round_%i.json'%i_round)
         #clean up at the end of the round 
         switch_dealer(self.player_1,self.player_2)
         self.set_pone_dealer()
         self.reset_crib_and_cut_card() 
         self.reset_table()
+        self.save_state()  
         
     def set_pone_dealer(self):
         """allocate players as pone and dealer"""
@@ -337,18 +320,26 @@ class CribbageGame():
         self.deck = deck
         
         return for_set_game
-    
+        
     def discard(self):
         """collect player's discard and move into crib""" 
         
         self.pone.discard_method.update_hand(self.pone.hand)
-        pone_to_discard = self.pone.discard_method.choose_discard()
+        self.save_state()        
+        pone_to_discard = self.pone.discard_method.choose_discard() 
+        self.save_state()             
         self.pone.move_to_crib(pone_to_discard,self.crib)
-
+        self.save_state()     
+        
+        
         self.dealer.discard_method.update_hand(self.dealer.hand)
+        self.save_state()   
         dealer_to_discard = self.dealer.discard_method.choose_discard()
+        self.save_state()   
         self.dealer.move_to_crib(dealer_to_discard,self.crib)
+        self.save_state()   
 
+        
     def update_crib(self,crib):
         """update the crib
         
@@ -505,6 +496,7 @@ class CribbageGame():
                     out_string += 'On table :\n%s\n'%(self.on_table.__str__())
                     self.logger(out_string)
                     self.switch_player() 
+                    self.save_state()  
                     
             else:
                 self.go()
@@ -520,7 +512,7 @@ class CribbageGame():
        
         self.switch_player()
         active_player  = getattr(self, self.active_player_str)
-        
+        self.save_state()  
         if self.go_added == False:
             active_player.update_score(1)
             self.go_added = True
@@ -542,7 +534,7 @@ class CribbageGame():
         self.pone.update_hand(self.pone_hand_init)
         self.dealer.update_hand(self.dealer_hand_init)
     
-    def save_state(self,fname):
+    def save_state(self,fname=None):
         """ save the current state as json file"""
 
         state={'p1_score' : self.player_1.score,
@@ -557,6 +549,9 @@ class CribbageGame():
                'active_player_str'  : self.active_player_str,
                'table_sum'  : self.table_sum,
               }
+        if fname ==None:
+            fname='state.json'
         with open(fname,'w+') as f:
             json.dump(state,f)
+        return state    
 

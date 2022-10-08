@@ -2,7 +2,7 @@ from pycribbage import cribbage_game
 from pycribbage import cribbage_tools
 import os
 
-def test_cribbage_game_e2e(tmp_path):
+def test_cribbage_game_e2e(tmp_path,init_players):
     """behaviour to test : From a pre-determined set of cards, the same game result should be obtained
                             with the same deterministic bots
     
@@ -12,17 +12,8 @@ def test_cribbage_game_e2e(tmp_path):
     
 
     """
-    players=[]
-    
-    player={    'name': 'Player 1',
-                'TS_method':'0', 
-                'TP_method':'0',}
-    players.append(player)
-    
-    player={    'name': 'Player 2',
-                'TS_method':'0', 
-                'TP_method':'0',}
-    players.append(player)
+    player_1,player_2 = init_players
+    players=[player_1,player_2]
 
     set_game = cribbage_tools.load_set_game(os.path.join('tests','game_1.pickle'))
     

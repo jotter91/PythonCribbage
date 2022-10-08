@@ -1,6 +1,12 @@
 from copy import deepcopy
 from pycribbage import deck_tools
 import random
+##bits for API
+
+home_loc='http://127.0.0.1:5000'
+import requests
+import urllib.parse
+import time
 
 class Discard():
     """
@@ -85,11 +91,9 @@ class HumanDiscard(Discard):
     #static
     def is_input_ok(self,from_input):
         """check that human inputs are correct i.e. an int between 0 and 5 
-
         Parameters
         -----------
         from_input, int
-
         Returns
         ----------
         status, bool 
@@ -111,12 +115,10 @@ class HumanDiscard(Discard):
     #static
     def are_inputs_unique(self,to_move):
         """check that human inputs are unique 
-
         Parameters
         -----------
         to_move, list
             two element list of ints
-
         Returns
         ----------
         status, bool 

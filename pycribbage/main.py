@@ -18,7 +18,7 @@ The user will input information for two players
                 1 - for a random index  (see the_play_methods module)
 """
 from pycribbage.cribbage_game import CribbageGame
-
+from pycribbage import discard_methods, the_play_methods,player
 def check_the_show_method(method):
     """Check to make sure the show method input is correct
     
@@ -112,19 +112,35 @@ def read_players():
             TP_method = check_the_play_method(TP_method)
 
 
-
-        player={'name':player_name,
-                'TS_method':TS_method, 
-                'TP_method':TP_method,}
+        if TS_method =='0':
+            ts_method =  discard_methods.Discard()
+        elif TS_method=='1':
+            ts_method = discard_methods.RandomDiscard()
+        elif TS_method=='2':
+            ts_method = discard_methods.HumanDiscard()
+        
+        
+        #load in the play method
+        if TP_method =='0':
+            tp_method =  the_play_methods.ThePlayMethod() 
+        elif TP_method=='1':
+            tp_method = the_play_methods.RandomThePlay()
+        elif TP_method=='2':
+            tp_method = the_play_methods.HumanThePlay()
+     
+        player_obj = player.Player(player_name,
+                                     ts_method,
+                                     tp_method) 
+        
                 
-        players.append(player)
+        players.append(player_obj)
     
     return players
 
 if __name__ =="__main__":
     
     players = read_players()
-    
+
     game = CribbageGame(players)
     
     game.play_game()

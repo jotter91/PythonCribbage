@@ -1,4 +1,4 @@
-from pycribbage import deck_tools,the_show
+from pycribbage import deck_tools
 
 
 
@@ -39,6 +39,8 @@ def test_the_show(init_game):
     init_game.update_crib(crib)
     init_game.update_cut_card(cut_card)
     init_game.set_pone_dealer()
+    print(init_game.pone.name)
+    print(init_game.dealer.name)
     pone_score,dealer_hand_score,crib_score,dealer_score,out_string = init_game.the_show()
 
     assert pone_score ==5

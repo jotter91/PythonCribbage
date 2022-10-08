@@ -110,6 +110,7 @@ def test_game_score_init_dealer(init_players):
     """
     player_1,player_2 = init_players   
     player_1.set_dealer(True) 
+    player_2.set_dealer(False) 
     
     assert player_1.is_dealer ==True
     assert player_2.is_dealer ==False

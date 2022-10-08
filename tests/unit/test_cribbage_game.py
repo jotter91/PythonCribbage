@@ -26,7 +26,7 @@ def test_cribbage_game_random_game():
     pass
 
 
-def test_cribbage_game_from_set_game(tmp_path):
+def test_cribbage_game_from_set_game(tmp_path,init_players):
     """behaviour to test : a game of cribbage should be able to be played from a 
     pre allocated set of cards for each round (a set game)
     
@@ -36,17 +36,9 @@ def test_cribbage_game_from_set_game(tmp_path):
     
 
     """
-    players=[]
     
-    player={    'name': 'Player 1',
-                'TS_method':'0', 
-                'TP_method':'0',}
-    players.append(player)
-    
-    player={    'name': 'Player 2',
-                'TS_method':'0', 
-                'TP_method':'0',}
-    players.append(player)
+    player_1,player_2 = init_players
+    players=[player_1,player_2]
     
     cwd=os.getcwd()
     os.chdir(tmp_path)
@@ -131,7 +123,7 @@ def test_cribbage_game_logger(init_game,tmp_path):
 
     assert line =='a test\n'
     
-def test_cribbage_game_batch_mode(tmp_path):
+def test_cribbage_game_batch_mode(tmp_path,init_players):
     """behaviour to test : in batch mode nothing should be printed to the console
        instead it should be written to a file 
        
@@ -144,17 +136,8 @@ def test_cribbage_game_batch_mode(tmp_path):
     tmp_path, str 
         location of temporary path  
     """
-    players=[]
-    
-    player={    'name': 'Player 1',
-                'TS_method':'0', 
-                'TP_method':'0',}
-    players.append(player)
-    
-    player={    'name': 'Player 2',
-                'TS_method':'0', 
-                'TP_method':'0',}
-    players.append(player)
+    player_1,player_2 = init_players
+    players=[player_1,player_2]
     
     cwd = os.getcwd()
     

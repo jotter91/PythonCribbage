@@ -66,8 +66,8 @@ def test_switch_dealer(init_players):
     
     switch_dealer(player_1,player_2)
     
-    assert player_1.is_dealer ==False
-    assert player_2.is_dealer ==True
+    assert player_1.is_dealer ==True
+    assert player_2.is_dealer ==False
 
 def test_create_set_game():
     """behaviour to test : should be able to create a set game for a given number of rounds
