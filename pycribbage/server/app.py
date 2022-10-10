@@ -1,6 +1,14 @@
+import sys
+sys.path.append('C:\\JohnData\\software\\misc\\cr\\PyCribbage\\PyCribbage\\')
+sys.path.append('C:\\JohnData\\software\\misc\\cr\\PyCribbage\\PyCribbage\\pycribbage')
+sys.path.append('C:\\JohnData\\software\\misc\\cr\\PyCribbage\\PyCribbage\\pycribbage\\server')
+sys.path.append('C:\\JohnData\\software\\misc\\cr\\PyCribbage\\PyCribbage\\pycribbage\\api')
+
 from flask import Flask, render_template, request, current_app,jsonify,redirect,url_for
-from pycribbage.main import read_players
-from pycribbage.cribbage_game import CribbageGame
+from pycribbage import player,discard_methods,the_play_methods
+from game_server import CribbageGameServer,start_game
+from pycribbage.api.human_methods import HumanDiscardServer,HumanThePlayServer
+
 import multiprocessing 
 import time
 app = Flask(__name__)
@@ -16,8 +24,9 @@ state={"active_player_str": "pone",
   "p2_dealer": False,
   "p2_hand": "Ace of Spades\n8 of Spades\n5 of Clubs\n5 of Diamonds",
   "p2_score": 0,
-  "table_sum": 0}
-p1_index=[]
+  "table_sum": 0,
+  "p1_choice" :[],
+  "p2_choice":[]}
 info='some info'
 
 #@app.route('/' )
@@ -35,32 +44,40 @@ def game():
 @app.route('/send', methods=['POST'])
 
 def send():
-    global p1_index 
+    global state
     if request.method == 'POST':
 
         index_1  = int(request.form['index_1'])
         index_2  = int(request.form['index_2'])
         p1_index=[index_1,index_2]
+        state['p1_choice'] = p1_index
         
         #game()
     return redirect(url_for('game'))
-    
+
+@app.route('/send_the_play', methods=['POST'])
+
+def send_the_play():
+    global state 
+    if request.method == 'POST':
+
+        index_1  = int(request.form['index_1'])
+        p1_index=[index_1,]
+        state['p1_choice'] = p1_index
+        #game()
+    return redirect(url_for('game'))    
 @app.route('/launch' )
 def launch():
     
-    players=[]
+    player_1 = player.Player('Player 1',
+                             HumanDiscardServer('http://127.0.0.1:5000/','p1_choice'),
+                            HumanThePlayServer('http://127.0.0.1:5000/','p1_choice'))
+
+    player_2 = player.Player('Player 2',
+                             discard_methods.Discard(),
+                             the_play_methods.ThePlayMethod() )
     
-    player={    'name': 'Player 1',
-                'TS_method':'2', 
-                'TP_method':'0',}
-    players.append(player)
-    
-    player={    'name': 'Player 2',
-                'TS_method':'0', 
-                'TP_method':'0',}
-    players.append(player)
-    
-    
+    players=[player_1,player_2]
     process = multiprocessing.Process(
             target = start_game,
             args = (players,))
@@ -70,11 +87,8 @@ def launch():
     
     return redirect(url_for('game'))
 
-def start_game(players):
-    game = CribbageGame(players)
-    
-    game.play_game()
 
+"""
 @app.post('/p1_choice' )
 def p1_choice():
     global p1_index 
@@ -88,7 +102,7 @@ def p1_choice():
 @app.get("/p1_choice")
 def get_p1_choice():
     return jsonify(p1_index)    
-    
+"""    
 @app.post('/state' )
 def add_state():
     #state=[]

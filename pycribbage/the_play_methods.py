@@ -85,75 +85,9 @@ class ThePlayMethod():
             return None
         else:
             return valid_index[0]
+    def print_out(self,to_print):
+        print(to_print)
 
-class HumanThePlay(ThePlayMethod):
-    __doc__ = ThePlayMethod.__doc__ + '\n A ThePlayMethod subclass used to allow a human choice of card to play'
-    
-    def __init__(self):
-        ThePlayMethod.__init__(self)
-    
-    def is_input_ok(self,from_input,valid_index):
-        """check that human inputs are correct i.e. an int between 0 and 5 
-
-        Parameters
-        -----------
-        from_input, int
-        valid_index,list
-            list (elements are ints) of valid choices 
-        Returns
-        ----------
-        status, bool 
-        """
-        status=False 
-        
-        try:
-            new_int = int(from_input)
-        except ValueError:
-            print('input is not a valid integer,please enter again')
-            return status
-        
-        if new_int not in valid_index:
-            print('input is not valid, choices are : ',valid_index )
-            print('please enter again')
-            return status
-        else:
-            status=True
-            return status
-        
-    def choose_play(self):     
-        """human method to choose play""" 
-        
-        print('Waiting for your choice')
-        print('cards on the table:')
-        
-        for card in self.on_table.cards:
-            print('%s '%(card))
-
-        self.get_table_sum()
-        print('table sum is %i' %self.table_sum)
-        
-        valid_index = self.assess_validity()
-        print('Your hand:') 
-        for i,card in enumerate(self.hand.cards):
-            print('%i : %s '%(i,card))
-    
-        
-        if len(valid_index)>1:
-            input_valid =False
-            while input_valid==False:
-                choice = input('Choose index of card to play')
-                input_valid = self.is_input_ok(choice,valid_index)
-            return int(choice)
-        
-        elif len(valid_index)==1:
-            print('only one valid choice')
-            input('you will play %i, press a key to continue '%valid_index[0])
-            return valid_index[0]
-        
-        elif len(valid_index)==0:
-            print('no valid choices so you must say go')
-            input('Say go, press a key to continue')
-            return None
 
 class RandomThePlay(ThePlayMethod):
     __doc__ = ThePlayMethod.__doc__ + '\n A ThePlayMethod subclass used to allow a random choice of card to play'

@@ -65,6 +65,8 @@ class CribbageGame():
         a Hand object that represents the cards dealt to the dealer. 
         This is required as cards will be moved to the table and they need to be returned
         before the show  
+
+        
     Methods
     -------
     play_game()
@@ -534,7 +536,7 @@ class CribbageGame():
         self.pone.update_hand(self.pone_hand_init)
         self.dealer.update_hand(self.dealer_hand_init)
     
-    def save_state(self,fname=None):
+    def get_state(self):
         """ save the current state as json file"""
 
         state={'p1_score' : self.player_1.score,
@@ -548,10 +550,17 @@ class CribbageGame():
                'crib'  : self.crib.__str__(),
                'active_player_str'  : self.active_player_str,
                'table_sum'  : self.table_sum,
+               'p1_choice' : [],
+               'p2_choice' : [],
               }
+
+        return state    
+
+    def save_state(self,fname=None):
+        """ save the current state as json file"""
+        state = self.get_state()
         if fname ==None:
             fname='state.json'
         with open(fname,'w+') as f:
             json.dump(state,f)
-        return state    
-
+           
