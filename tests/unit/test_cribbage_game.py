@@ -1,5 +1,5 @@
 from pycribbage import cribbage_game
-from pycribbage import cribbage_tools
+from pycribbage import cribbage_tools, deck_tools
 import os,json
 
 def test_cribbage_game_finish(init_game):
@@ -349,68 +349,106 @@ def test_cribbage_game_discard(init_game_for_round):
     assert len(game.pone.hand.cards)==4 
     assert len(game.dealer.hand.cards)==4 
 
-"""
-def test_round_the_play(init_round):
-    #behaviour :round should be able to execute the play
-    #Given : a round object
-    #when : after the discard 
-    #then : 'the play' phase should happen. The dealer always gets at least one point
-    
-    #Parameters: 
-    #-----------
-    #init_round initialised CribbageRound Object
-    
-    round_1=init_round
+   
 
-
-    round_1.deal()
-    round_1.discard()
-    
-    round_1.the_play()
-
-    assert round_1.dealer.score >0
-"""    
-"""
-def test_round_the_show(init_game_for_round):
-    
-    #behaviour :round should be able to execute the show
-    #Given : a round object
-    #when : after the play 
-    #then : 'the show' phase should happen.The players scores should be incremented 
-    #based on how many points they get in the show
-    
-    #Parameters: 
-    #-----------
-    #init_game_for_round CribbageGame Object    
-    
-    game=init_game_for_round
-
-
-    game.deal()
-    game.discard()
-    
-    pone_score,dealer_hand_score,crib_score,dealer_score,_ =   game.the_show()
-
-    assert show.pone_score == game.pone.score 
-    assert show.dealer_score == game.dealer.score 
-"""
-
-def test_cribbage_game_save_state(init_game_for_round):
-    #behaviour to test : save the current state of the game 
+def test_cribbage_game_get_state(init_game):
+    #behaviour to test : get the current state of the game 
     #given : a cribbage game object
     #when : after each player has taken their turn 
-    #then : save the state as a json
+    #then : get the state as a json
 
+    #first test after init 
+    state =  init_game.get_state()
+    N_cards=(6,5,8,1)
+    names=(['p1_hand','p2_hand'],['crib'],['on_table'],['cut_card'])
+        
+        
+    zipped = zip(N_cards,names)
+    for item in zipped:
+        for i in range(0,item[0]):
+            for p in item[1]:
+                for c in ['suit','rank']:
+                    assert state['%s_%i_%s'%(p,i,c)] == None
+    assert state['p1_score']==0
+    assert state['p2_score']==0
+    assert state['p1_choice_0']==None
+    assert state['p1_choice_1']==None
+    assert state['p2_choice_0']==None
+    assert state['p2_choice_1']==None
     
-    game=init_game_for_round
-    game.deal_hands()
+    #create an example set of hands 
+    pone = deck_tools.Hand()
+    pone.cards.append(deck_tools.Card(0, 1))
+    pone.cards.append(deck_tools.Card(1, 1))
+    pone.cards.append(deck_tools.Card(1, 11))
+    pone.cards.append(deck_tools.Card(0, 10))
+    
 
-    game.save_state('test.json')
+    dealer = deck_tools.Hand()
+    dealer.cards.append(deck_tools.Card(0, 2))
+    dealer.cards.append(deck_tools.Card(1, 3))
+    dealer.cards.append(deck_tools.Card(1, 12))
+    dealer.cards.append(deck_tools.Card(0, 13))
+    
+    crib = deck_tools.Hand()
+    crib.cards.append(deck_tools.Card(3, 2))
+    crib.cards.append(deck_tools.Card(3, 3))
+    crib.cards.append(deck_tools.Card(3, 12))
+    crib.cards.append(deck_tools.Card(3, 13))
+    
+    cut_card = deck_tools.Hand()
+    cut_card.cards.append(deck_tools.Card(0, 9))
 
-    assert os.path.isfile('test.json')
-
-    with open('test.json') as json_file:
-        data = json.load(json_file)
-    keys =['p1_score']
-    for key in keys:
-        assert key in data.keys()     
+    #add to game create a game 
+    
+    init_game.player_1.update_hand(pone)
+    init_game.player_2.update_hand(dealer)
+    init_game.update_crib(crib)
+    init_game.update_cut_card(cut_card)
+    init_game.set_pone_dealer()
+    
+    init_game.pone.update_score(2)
+    init_game.dealer.update_score(3)
+    
+    state = init_game.get_state()
+    print(state)
+    assert state['p1_dealer']==0
+    assert state['p2_dealer']==1
+    assert state['active_player_str']=='pone'
+    
+    assert state['p1_hand_0_suit'] == 0
+    assert state['p1_hand_1_suit'] == 1
+    assert state['p1_hand_2_suit'] == 1
+    assert state['p1_hand_3_suit'] == 0
+    
+    assert state['p1_hand_0_rank'] == 1
+    assert state['p1_hand_1_rank'] == 1
+    assert state['p1_hand_2_rank'] == 11
+    assert state['p1_hand_3_rank'] == 10
+    
+    assert state['p2_hand_0_suit'] == 0
+    assert state['p2_hand_1_suit'] == 1
+    assert state['p2_hand_2_suit'] == 1
+    assert state['p2_hand_3_suit'] == 0
+    
+    assert state['p2_hand_0_rank'] == 2
+    assert state['p2_hand_1_rank'] == 3
+    assert state['p2_hand_2_rank'] == 12
+    assert state['p2_hand_3_rank'] == 13
+    
+    assert state['crib_0_suit'] == 3
+    assert state['crib_1_suit'] == 3
+    assert state['crib_2_suit'] == 3
+    assert state['crib_3_suit'] == 3
+    
+    assert state['crib_0_rank'] == 2
+    assert state['crib_1_rank'] == 3
+    assert state['crib_2_rank'] == 12
+    assert state['crib_3_rank'] == 13
+    
+    assert state['cut_card_0_suit'] == 0
+    
+    assert state['cut_card_0_rank'] == 9
+    
+    assert state['p1_score'] == 2
+    assert state['p2_score'] == 3

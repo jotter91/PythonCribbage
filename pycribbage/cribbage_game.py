@@ -539,21 +539,73 @@ class CribbageGame():
     def get_state(self):
         """ save the current state as json file"""
 
+        #first add in the non-card related fields
         state={'p1_score' : self.player_1.score,
                'p2_score' : self.player_2.score,
-               'p1_hand'  : self.player_1.hand.__str__(),
-               'p2_hand'  : self.player_2.hand.__str__(),
-               'p1_dealer' : self.player_1.is_dealer,
-               'p2_dealer' : self.player_2.is_dealer,
-               'on_table'  : self.on_table.__str__(),
-               'cut_card'  : self.cut_card.__str__(),
-               'crib'  : self.crib.__str__(),
+               'p1_dealer' : +(self.player_1.is_dealer),
+               'p2_dealer' : +(self.player_2.is_dealer),
                'active_player_str'  : self.active_player_str,
                'table_sum'  : self.table_sum,
-               'p1_choice' : [],
-               'p2_choice' : [],
-              }
-
+               'p1_choice_0' : None,
+               'p1_choice_1' : None,
+               'p2_choice_0' : None,
+               'p2_choice_1' : None,
+                }
+        #now add in the card related fields   - default is None 
+        N_cards=(6,5,8,1)
+        names=(['p1_hand','p2_hand'],['crib'],['on_table'],['cut_card'])
+        
+        
+        zipped = zip(N_cards,names)
+        for item in zipped:
+            for i in range(0,item[0]):
+                for p in item[1]:
+                    for c in ['suit','rank']:
+                        state['%s_%i_%s'%(p,i,c)]=None
+        """  
+        for i in range(0,6):
+            for p in :
+                for c in ['suit','rank']:
+                    state['%s_hand_%i_%s'%(p,i,c)]=None
+                  
+        for i in range(0,5):
+            for p in ['crib']:
+                for c in ['suit','rank']:
+                    state['%s_%i_%s'%(p,i,c)]=None            
+        for i in range(0,8):
+            for p in ['on_table']:
+                for c in ['suit','rank']:
+                    state['%s_%i_%s'%(p,i,c)]=None
+        for i in [0]:
+            for p in ['cut_card']:
+                for c in ['suit','rank']:
+                    state['%s_%i_%s'%(p,i,c)]=None 
+        """      
+        names =('p1_hand','p2_hand','on_table','crib','cut_card')
+        cards =(self.player_1.hand.cards,self.player_2.hand.cards,self.on_table.cards,self.crib.cards,self.cut_card.cards)
+        zipped = zip(names,cards)
+        for item in zipped:
+            for i,card in enumerate(item[1]):
+                state['%s_%i_suit'%(item[0],i)] = card.suit
+                state['%s_%i_rank'%(item[0],i)] = card.rank
+        """
+        #now add in the cards for the current state
+        for i,card in enumerate(self.player_1.hand.cards):
+            state['p1_hand_%i_suit'%i] = card.suit
+            state['p1_hand_%i_rank'%i] = card.rank
+            
+        for i,card in enumerate(self.player_2.hand.cards):
+            state['p2_hand_%i_suit'%i] = card.suit
+            state['p2_hand_%i_rank'%i] = card.rank
+            
+        for i,card in enumerate(self.crib.cards):
+            state['crib_%i_suit'%i] = card.suit
+            state['crib_%i_rank'%i] = card.rank
+            
+        for i,card in enumerate(self.cut_card.cards):        
+            state['cut_card_%i_suit'%i] = card.suit
+            state['cut_card_%i_rank'%i] = card.rank   
+        """    
         return state    
 
     def save_state(self,fname=None):
