@@ -552,7 +552,7 @@ class CribbageGame():
                'p2_choice_1' : None,
                 }
         #now add in the card related fields   - default is None 
-        N_cards=(6,5,8,1)
+        N_cards=(6,4,8,1)
         names=(['p1_hand','p2_hand'],['crib'],['on_table'],['cut_card'])
         
         

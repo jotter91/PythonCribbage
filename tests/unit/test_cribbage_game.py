@@ -359,7 +359,7 @@ def test_cribbage_game_get_state(init_game):
 
     #first test after init 
     state =  init_game.get_state()
-    N_cards=(6,5,8,1)
+    N_cards=(6,4,8,1)
     names=(['p1_hand','p2_hand'],['crib'],['on_table'],['cut_card'])
         
         
