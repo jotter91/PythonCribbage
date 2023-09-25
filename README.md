@@ -6,25 +6,40 @@ PyCribbage is a Python application for playing a card game called Cribbage. It w
 
 An overview of the rules of the game and the terminology used can be found here : https://www.theukrules.co.uk/rules/children/games/cards/cribbage.html
 
-## Installation
+## Installation 
 
 PyCribbage was created with Python 3.8.5, but it should work with Python 3+. 
 There are no additional dependencies required so one should one be able to use this library with a standard Python 3.8.5 installation. 
 
-```
-mkdir cribbage
-cd cribbage
-git clone https://github.com/jotter91/PythonCribbage
-```
-
-To run the tests then there are some additional packages required, please see requirements_dev.txt. These can be installed as follows:
+To play the game with the terminalUI simply: 
 
 ```
 python -m venv .venv/
 source .venv/bin/activate # Line to enter before any commands below
-python -m pip install -r requirements_dev.txt
+pip install pycribbage==1.0.0
+python -m pycribbage
 ```
 
+
+
+To run the tests then there are some additional packages required and these can be installed as follows:
+
+```
+python -m venv .venv/
+source .venv/bin/activate # Line to enter before any commands below
+pip install pycribbage[dev] 
+```
+
+If you wish to run from source
+```
+mkdir cribbage
+cd cribbage
+git clone https://github.com/jotter91/PythonCribbage
+python -m venv .venv/
+source .venv/bin/activate # Line to enter before any commands below
+python cribbage/pycribbage/__main__.py
+
+```
 
 
 ## Usage
@@ -32,7 +47,13 @@ python -m pip install -r requirements_dev.txt
 To play an interactive game launch main.py and follow the on screen prompts
 
 ```
-python pycribbage/main.py
+python -m pycribbage
+```
+
+or 
+
+```
+python pycribbage/__main__.py
 ```
 
 The prompts will ask for information on which methods to use. The methods are split into the two parts of a cribbage game, The Show and The Play. Currently your opponent can use either a random choice during the game or a repeatable choice (useful for replaying the same game). 
