@@ -1,6 +1,7 @@
 # conftest.py
-from pycribbage import player,discard_methods,the_play_methods,cribbage_game
+from pycribbage import player,discard_methods,the_play_methods,cribbage_game,cribbage_tools
 import pytest
+import pathlib
 import os 
 from _pytest.assertion import truncate
 truncate.DEFAULT_MAX_LINES = 9999
@@ -71,4 +72,8 @@ def init_game_for_round(init_game):
     game.set_pone_dealer()
 
     return game
+
+@pytest.fixture()
+def set_game_1():
+    return  cribbage_tools.load_set_game(os.path.join(pathlib.Path(__file__).parent.resolve(), 'game_1.pickle'))
 
