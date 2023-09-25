@@ -97,3 +97,83 @@ class RandomDiscard(Discard):
         
         return self.sets[random.randrange(14)]
 
+
+class HumanDiscard(Discard):
+    __doc__ = Discard.__doc__ + '\n A Discard subclass used to allow a human player to choose which cards to discard'
+
+    def __init__(self):
+        Discard.__init__(self)
+
+    # static
+    def is_input_ok(self, from_input):
+        """check that human inputs are correct i.e. an int between 0 and 5
+        Parameters
+        -----------
+        from_input, int
+        Returns
+        ----------
+        status, bool
+        """
+        status = False
+
+        try:
+            new_int = int(from_input)
+        except ValueError:
+            self.print_out('input is not a valid integer,please enter again')
+            return status
+
+        if new_int < 0 or new_int > 5:
+            self.print_out('input is not in the range of 0 and 5, please enter again')
+            return status
+        else:
+            status = True
+            return status
+
+    # static
+    def are_inputs_unique(self, to_move):
+        """check that human inputs are unique
+        Parameters
+        -----------
+        to_move, list
+            two element list of ints
+        Returns
+        ----------
+        status, bool
+        """
+        status = False
+        if to_move[0] == to_move[1]:
+            self.print_out('inputs are not unique, please enter again')
+            return status
+        else:
+            status = True
+            return status
+
+    def choose_discard(self):
+        __doc__ = Discard.__doc__ + '\n this subclass overrides default func to allow a human to choose which cards to discard'
+
+        print('Choose cards to discard')
+        for i, card in enumerate(self.hand.cards):
+            print('%i : %s ' % (i, card))
+
+        to_discard = []
+
+        input_valid = False
+        inputs_unique = False
+
+        while inputs_unique == False:
+
+            while input_valid == False:
+                first_index = input('Choose first card to discard :')
+                input_valid = self.is_input_ok(first_index)
+
+            input_valid = False
+
+            while input_valid == False:
+                second_index = input('Choose second card to discard :')
+                input_valid = self.is_input_ok(second_index)
+
+            inputs_unique = self.are_inputs_unique([first_index, second_index])
+
+        to_discard = [int(first_index), int(second_index)]
+
+        return to_discard
