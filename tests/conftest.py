@@ -1,5 +1,5 @@
 # conftest.py
-from pycribbage import player,discard_methods,the_play_methods,cribbage_game,cribbage_tools
+from src.pycribbage import player,discard_methods,the_play_methods,cribbage_game,cribbage_tools
 import pytest
 import pathlib
 import os 

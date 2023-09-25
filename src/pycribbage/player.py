@@ -1,5 +1,5 @@
-from pycribbage.deck_tools import Hand
-from pycribbage.cribbage_tools import GameOver
+from .deck_tools import Hand
+from .cribbage_tools import GameOver
 
 
 class Player():

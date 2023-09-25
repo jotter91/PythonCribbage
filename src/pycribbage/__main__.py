@@ -140,9 +140,11 @@ def read_players():
     return players
 
 
-if __name__ == "__main__":
+def main():
     players = read_players()
-
     game = CribbageGame(players)
-
     game.play_game()
+
+
+if __name__ == "__main__":
+    main()

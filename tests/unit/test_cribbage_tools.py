@@ -1,5 +1,5 @@
 from pycribbage.cribbage_tools import deal,cut_for_crib,switch_dealer,create_set_game,save_set_game,load_set_game
-from pycribbage import deck_tools 
+from pycribbage import deck_tools
 import os 
 
 def test_deal():
