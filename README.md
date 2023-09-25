@@ -1,4 +1,4 @@
-
+[![Python application](https://github.com/jotter91/PythonCribbage/actions/workflows/python-app2.yml/badge.svg)](https://github.com/jotter91/PythonCribbage/actions/workflows/python-app2.yml)
 ## PyCribbage
 
 PyCribbage is a Python application for playing a card game called Cribbage. It was created to demonstrate my ability to apply OOP concepts, follow a TDD process and apply SOLID coding principles.
