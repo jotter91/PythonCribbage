@@ -14,7 +14,7 @@ License: GNU GPLv3 http://www.gnu.org/licenses/gpl.html
 import random
 
 
-class Card(object):
+class Card:
     """Represents a standard playing card.
 
     Attributes:
@@ -31,20 +31,19 @@ class Card(object):
         self.suit = suit
         self.rank = rank
         self.get_face_value()
+
     def __str__(self):
         """Returns a human-readable string representation."""
         return '%s of %s' % (Card.rank_names[self.rank],
                              Card.suit_names[self.suit])
 
-    def __cmp__(self, other):
-        """Compares this card to other, first by suit, then rank.
-
-        Returns a positive number if this > other; negative if other > this;
-        and 0 if they are equivalent.
+    def __eq__(self, other):
+        """Compares if cards are equal
         """
-        t1 = self.suit, self.rank
-        t2 = other.suit, other.rank
-        return cmp(t1, t2)
+        if self.rank==other.rank and self.suit== other.suit:
+            return True
+        else:
+            False
     def get_face_value(self):
         """ Assigns an integer to the class corresponding to the face value of the card"""
         if self.rank <= 10:
@@ -53,7 +52,7 @@ class Card(object):
             self.face_value = 10
 
 
-class Deck(object):
+class Deck:
     """Represents a deck of cards.
 
     Attributes:

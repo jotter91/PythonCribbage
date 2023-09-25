@@ -79,3 +79,10 @@ def test_remove_from_deck():
     for i in range(n):
         assert hand.cards[i].__str__() not in new_deck.__str__()
 
+def test_compare_cards():
+    ace_of_spades_1 = deck_tools.Card(3,1)
+    ace_of_spades_2 = deck_tools.Card(3,1)
+    ace_of_clubs = deck_tools.Card(1,1)
+
+    assert ace_of_spades_1 == ace_of_spades_2
+    assert ace_of_clubs != ace_of_spades_1
